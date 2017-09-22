@@ -150,4 +150,12 @@ namespace TypeParser
         private Comparer<T> mComparer = Comparer<T>.Default;
         private Node mRoot = null;
     }
+
+    public static class BinaryTreeUtility
+    {
+        public static BinaryTree<T> ToBinaryTree<T>(this IEnumerable<T> enumerable)
+        {
+            return new BinaryTree<T>(enumerable);
+        }
+    }
 }
