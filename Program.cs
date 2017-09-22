@@ -10,8 +10,18 @@ namespace TypeParser
     {
         static void Main(string[] args)
         {
-            var a = Type.GetType("System.Int32");
-            var ident = Identifier.Factory.FromString("string method1(int x1, ref char x2, out float x3)");
+            string source = 
+@"int a;
+const float c = 10;
+class MyClass;
+string method1(int x1, ref char x2, out float x3);";
+
+            var req = (
+                from v
+                in source.Split(';')
+                where v.Length > 0
+                select Identifier.Factory.FromString(v.Trim())
+            ).ToArray();
         }
     }
 }

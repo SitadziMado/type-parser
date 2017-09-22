@@ -25,7 +25,7 @@ namespace TypeParser
 
         public enum PassType
         {
-            None,
+            ByVal,
             Ref,
             Out,
         }
@@ -60,19 +60,23 @@ namespace TypeParser
                     where v.Trim().Length > 0
                     select v.Trim()
                 );
-
+                
                 bool isConst = false;
 
                 var first = tokens.Dequeue();
 
                 if (first == "const")
+                {
                     isConst = true;
+                    first = tokens.Dequeue();
+                }
                 else if (first == "class")
                     return new Class(tokens.Dequeue(), typeof(object));
-
+                
                 try
                 {
-                    Type type = Type.GetType(first, true, false);
+                    // Type type = Type.GetType(first + ", TypeParser", true, false);
+                    Type type = mTypes[first];
                     string identifier = tokens.Dequeue();
                     object value = null;
                     var parameters = new List<Parameter>();
@@ -93,34 +97,34 @@ namespace TypeParser
                         else if (operation == "(")
                         {
                             #region Функция
-                            operation = tokens.Dequeue();
+                            // operation = tokens.Dequeue();
 
                             while (operation != ")")
                             {
-                                PassType pt = PassType.None;
+                                PassType pt = PassType.ByVal;
                                 operation = tokens.Dequeue();
 
                                 if (operation == "ref")
                                 {
                                     pt = PassType.Ref;
+                                    operation = tokens.Dequeue();
                                 }
                                 else if (operation == "out")
                                 {
                                     pt = PassType.Out;
+                                    operation = tokens.Dequeue();
                                 }
-                                else
-                                {
-                                    var sb = new StringBuilder(operation);
+                                
+                                var sb = new StringBuilder(operation);
 
-                                    while ((operation = tokens.Dequeue()) != ")" && operation != ",")
-                                        sb.AppendFormat(" {0}", operation);
+                                while ((operation = tokens.Dequeue()) != ")" && operation != ",")
+                                    sb.AppendFormat(" {0}", operation);
 
-                                    parameters.Add(new Parameter(
-                                            (Variable)FromString(sb.ToString()),
-                                            pt
-                                        )
-                                    );
-                                }
+                                parameters.Add(new Parameter(
+                                        (Variable)FromString(sb.ToString()),
+                                        pt
+                                    )
+                                );
                             }
 
                             return new Function(identifier, type, parameters);
@@ -140,7 +144,11 @@ namespace TypeParser
                         throw new ParserException("Для константы ожидается начальное значение.");
                     }
                 }
-                catch (TypeLoadException e)
+                catch (KeyNotFoundException e)
+                {
+                    throw new ParserException("Некорректный тип данных.", e);
+                }
+                catch (ArgumentOutOfRangeException e)
                 {
                     throw new ParserException("Некорректный тип данных.", e);
                 }
@@ -160,9 +168,21 @@ namespace TypeParser
         public string Name { get; internal set; }
         public Type Typeid { get; internal set; }
 
-        private Dictionary<string, Type> mTypes = new Dictionary<string, Type>()
+        private static Dictionary<string, Type> mTypes = new Dictionary<string, Type>()
         {
-            { "int", typeof(int) }
+            { "byte", typeof(byte) },
+            { "sbyte", typeof(sbyte) },
+            { "ushort", typeof(ushort) },
+            { "short", typeof(short) },
+            { "uint", typeof(uint) },
+            { "int", typeof(int) },
+            { "ulong", typeof(ulong) },
+            { "long", typeof(long) },
+            { "float", typeof(float) },
+            { "double", typeof(double) },
+            { "decimal", typeof(decimal) },
+            { "char", typeof(char) },
+            { "string", typeof(string) },
         };
     }
 }
