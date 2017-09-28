@@ -14,7 +14,8 @@ namespace TypeParser
 @"int a;
 const float c = 10;
 class MyClass;
-string method1(int x1, ref char x2, out float x3);";
+string method1(int x1, ref char x2, out float x3);
+const float constant = 10.0;";
 
             BinaryTree<Identifier> tree = null;
 
@@ -30,9 +31,9 @@ string method1(int x1, ref char x2, out float x3);";
             catch (ParserException e)
             {
                 Console.WriteLine(
-                    String.Format(
-                        "Исходный файл содержит ошибку в строке {0}.", 
-                        tree?.Count + 2
+                    string.Format(
+                        "Исходный файл содержит ошибку." //, 
+                        // tree?.Count + 2
                     )
                 );
                 return;

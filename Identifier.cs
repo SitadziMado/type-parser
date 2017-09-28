@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace TypeParser
 {
@@ -87,7 +86,12 @@ namespace TypeParser
 
                         if (operation == "=")
                         {
-                            value = Convert.ChangeType(tokens.Dequeue(), type);
+                            var sb = new StringBuilder(tokens.Dequeue());
+
+                            while (tokens.Count > 0)
+                                sb.Append(tokens.Dequeue());
+
+                            value = Convert.ChangeType(sb.ToString().Replace('.', ','), type);
 
                             if (isConst)
                                 return new Constant(identifier, type, value);
