@@ -100,7 +100,10 @@ namespace TypeParser
                                 sb.Append(tokens.Dequeue());
 
                             value = Convert.ChangeType(
-                                sb.ToString().Replace('.', ',').Replace("'", ""),
+                                sb.ToString()
+                                    .Replace('.', ',')
+                                    .Replace("'", "")
+                                    .Replace("\"", "").Trim(),
                                 type
                             );
 
@@ -173,6 +176,14 @@ namespace TypeParser
                 catch (InvalidCastException e)
                 {
                     throw new ParserException("Неверный идентификатор типа.", e);
+                }
+                catch (OverflowException e)
+                {
+                    throw new ParserException("Число слишком большое.", e);
+                }
+                catch (FormatException e)
+                {
+                    throw new ParserException("Неверный формат.", e);
                 }
             }
 

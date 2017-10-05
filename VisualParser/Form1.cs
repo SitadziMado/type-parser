@@ -26,29 +26,36 @@ namespace VisualParser
             {
                 tree = (
                     from v
-                    in codeText.Text.Split(';')
+                    in codeText.Text.Trim().Split(';')
                     where v.Length > 0
                     select Identifier.Factory.FromString(v.Trim())
                 ).ToBinaryTree();
-
-                MessageBox.Show("Исходный код успешно распознан.");
+                
+                MessageBox.Show(
+                    "Исходный код успешно распознан.",
+                    "Успех!",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information
+                );
 
                 int i = 1;
 
                 var sb = new StringBuilder();
 
                 foreach (var v in tree)
-                    sb.AppendFormat("{0}: {1}" + Environment.NewLine, i++, v);
+                    sb.AppendFormat("{0}:\t{1}" + Environment.NewLine + Environment.NewLine, i++, v);
 
                 outputText.Text = sb.ToString();
             }
             catch (ParserException ex)
             {
-                Console.WriteLine(
+                MessageBox.Show(
                     string.Format(
-                        "Исходный файл содержит ошибку." //, 
-                                                         // tree?.Count + 2
-                    )
+                        "Исходный файл содержит ошибку: " + ex.Message
+                    ),
+                    "Ошибка",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Exclamation
                 );
             }
         }
