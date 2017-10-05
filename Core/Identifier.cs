@@ -53,6 +53,8 @@ namespace TypeParser
         {
             public static Identifier FromString(string code)
             {
+                code = code.Replace("()", "(void)");
+
                 Queue<string> tokens = new Queue<string>(
                     from v
                     in Regex.Split(code.Trim(), SplitRegex)
@@ -70,7 +72,13 @@ namespace TypeParser
                     first = tokens.Dequeue();
                 }
                 else if (first == "class")
+                {
                     return new Class(tokens.Dequeue(), typeof(object));
+                }
+                else if (first == "void")
+                {
+                    return new Variable("__void", typeof(void), null);
+                }
                 
                 try
                 {
@@ -84,9 +92,9 @@ namespace TypeParser
                     {
                         string operation = tokens.Dequeue();
 
-                        if (operation == "=")
+                        if (operation[0] == '=')
                         {
-                            var sb = new StringBuilder(tokens.Dequeue());
+                            var sb = new StringBuilder(operation.Substring(1));
 
                             while (tokens.Count > 0)
                                 sb.Append(tokens.Dequeue());
@@ -124,11 +132,10 @@ namespace TypeParser
                                 while ((operation = tokens.Dequeue()) != ")" && operation != ",")
                                     sb.AppendFormat(" {0}", operation);
 
-                                parameters.Add(new Parameter(
-                                        (Variable)FromString(sb.ToString()),
-                                        pt
-                                    )
-                                );
+                                var variable = (Variable)FromString(sb.ToString());
+
+                                if (variable.Name != "__void")
+                                    parameters.Add(new Parameter(variable, pt));
                             }
 
                             return new Function(identifier, type, parameters);
@@ -187,6 +194,7 @@ namespace TypeParser
             { "decimal", typeof(decimal) },
             { "char", typeof(char) },
             { "string", typeof(string) },
+            { "bool", typeof(bool) },
         };
     }
 }

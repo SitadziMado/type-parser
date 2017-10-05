@@ -15,7 +15,9 @@ namespace TypeParser
 const float c = 10;
 class MyClass;
 string method1(int x1, ref char x2, out float x3);
-const float constant = 10.0;";
+const float constant = 10.0;
+float f();
+bool stgr = true;" + "\nstring str = \"abcdef\"";
 
             BinaryTree<Identifier> tree = null;
 
