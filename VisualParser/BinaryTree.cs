@@ -43,38 +43,25 @@ namespace TypeParser
         {
             if (mRoot == null)
             {
-                mRoot = new Node(item);
+                mRoot = new Node(null, item);
             }
             else
             {
-                Node cur = mRoot;
+                Node cur = Find(item); ;
 
-                while (true)
+                int cmp = Compare(item, cur.Data);
+
+                if (cmp == -1)
                 {
-                    int cmp = Compare(item, cur.Data);
-
-                    if (cmp == -1)
-                        if (cur.Left != null)
-                        {
-                            cur = cur.Left;
-                        }
-                        else
-                        {
-                            cur.Left = new Node(item);
-                            break;
-                        }
-                    else if (cmp == +1)
-                        if (cur.Right != null)
-                        {
-                            cur = cur.Right;
-                        }
-                        else
-                        {
-                            cur.Right = new Node(item);
-                            break;
-                        }
-                    else
-                        return;
+                    cur.Left = new Node(cur, item);
+                }
+                else if (cmp == +1)
+                {
+                    cur.Right = new Node(cur, item);
+                }
+                else
+                {
+                    return;
                 }
             }
 
@@ -109,7 +96,38 @@ namespace TypeParser
 
         public bool Remove(T item)
         {
-            throw new NotImplementedException();
+            bool result = false;
+
+            if (Count > 0)
+            {
+                var node = Find(item);
+
+                if (node.Data.Equals(item))
+                {
+                    var parent = node.Parent;
+
+                    if (parent == null)
+                    {
+                        mRoot = null;
+                    }
+                    else
+                    {
+                        if (parent.Left != null && parent.Left == node)
+                        {
+                            parent.Left = null;
+                        }
+                        else if (parent.Right != null && parent.Right == node)
+                        {
+                            parent.Right = null;
+                        }
+                    }
+
+                    --Count;
+                    result = true;
+                }
+            }
+
+            return result;
         }
 
         private void Dfs(Queue<T> queue, Node cur)
@@ -127,10 +145,50 @@ namespace TypeParser
             return mComparer.Compare(lhs, rhs);
         }
 
+        private Node Find(T item)
+        {
+            Node cur = mRoot;
+
+            while (true)
+            {
+                int cmp = Compare(item, cur.Data);
+
+                if (cmp == -1)
+                {
+                    if (cur.Left != null)
+                    {
+                        cur = cur.Left;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                else if (cmp == +1)
+                {
+                    if (cur.Right != null)
+                    {
+                        cur = cur.Right;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            return cur;
+        }
+
         private class Node
         {
-            public Node(T data)
+            public Node(Node parent, T data)
             {
+                Parent = parent;
                 Data = data;
             }
 
@@ -140,6 +198,7 @@ namespace TypeParser
             }
 
             public T Data { get; set; }
+            public Node Parent { get; set; }
             public Node Left { get; set; }
             public Node Right { get; set; }
         }

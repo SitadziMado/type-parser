@@ -8,28 +8,25 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TypeParser;
+using VisualParser.Core;
 
 namespace VisualParser
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
-        private BinaryTree<Identifier> tree = new BinaryTree<Identifier>();
-         
-        public Form1()
+        private BinaryTree<Identifier> mTree = new BinaryTree<Identifier>();
+        private IdentifierParser mParser = new IdentifierParser(); 
+
+        public MainForm()
         {
             InitializeComponent();
         }
 
-        private void parseButton_Click(object sender, EventArgs e)
+        private void ParseButton_Click(object sender, EventArgs e)
         {
             try
             {
-                tree = (
-                    from v
-                    in codeText.Text.Trim().Split(';')
-                    where v.Length > 0
-                    select Identifier.Factory.FromString(v.Trim())
-                ).ToBinaryTree();
+                mTree = mParser.FromString(InputText.Text);
                 
                 MessageBox.Show(
                     "Исходный код успешно распознан.",
@@ -42,10 +39,10 @@ namespace VisualParser
 
                 var sb = new StringBuilder();
 
-                foreach (var v in tree)
+                foreach (var v in mTree)
                     sb.AppendFormat("{0}:\t{1}" + Environment.NewLine + Environment.NewLine, i++, v);
 
-                outputText.Text = sb.ToString();
+                OutputText.Text = sb.ToString();
             }
             catch (ParserException ex)
             {
